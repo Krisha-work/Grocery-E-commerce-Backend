@@ -105,7 +105,7 @@ export const getProductReviews = async (req: Request, res: Response) => {
       order: [['created_at', 'DESC']],
       include: [{
         model: User,
-        as: 'user',
+        as: 'userDetails',
         attributes: ['id', 'username'],
       }],
     });

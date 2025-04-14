@@ -5,6 +5,10 @@ import dotenv from 'dotenv';
 import fileUpload from 'express-fileupload';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import swaggerUi from 'swagger-ui-express';
+import path from 'path';
+import fs from 'fs';
+import { generateSwagger } from './swagger/swagger-autogen';
 import { securityMiddleware } from './middleware/security';
 import { authLimiter, apiLimiter } from './middleware/rateLimiter';
 
@@ -73,6 +77,24 @@ app.use(session({
 // Rate limiting
 app.use('/api/auth', authLimiter);
 app.use('/api', apiLimiter);
+
+// Generate Swagger documentation
+try {
+  generateSwagger();
+} catch (error) {
+  console.error('Failed to generate Swagger documentation:', error);
+}
+
+// Swagger UI setup
+const swaggerFile = path.join(__dirname, '../swagger/swagger.json');
+console.log(swaggerFile);
+if (fs.existsSync(swaggerFile)) {
+  console.log('Swagger documentation file found');
+  const swaggerDocument = require(swaggerFile);
+  app.get('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+} else {
+  console.warn('Swagger documentation file not found. API documentation will not be available.');
+}
 
 // Demo api
 app.get("/demo", (req: Request, res: Response) => {

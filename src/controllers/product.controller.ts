@@ -8,6 +8,7 @@ import { handleResponse, HTTP_STATUS } from '../utils/responseHandler';
 import { StatusCode } from '../config/statusCode';
 import path from 'path';
 import fs from 'fs';
+import { log } from 'console';
 
 // Helper function to validate image file
 const validateImageFile = (file: Express.Multer.File) => {
@@ -24,7 +25,7 @@ const validateImageFile = (file: Express.Multer.File) => {
 
   return true;
 };
-  
+
 // Helper function to delete old image file
 const deleteOldImage = async (imagePath: string) => {
   if (imagePath) {
@@ -128,11 +129,11 @@ export const getProduct = async (req: Request, res: Response) => {
   try {
     const product = await Product.findByPk(req.params.id, {
       include: [
-        { model: Category, as: 'categoryDetails' },
+        { model: Category, as: 'categoryDetail' },
         { 
           model: Review, 
           as: 'reviewDetails',
-          include: [{ model: User, as: 'userDetails', attributes: ['id', 'name', 'email'] }]
+          include: [{ model: User, as: 'userDetails', attributes: ['id', 'username'] }]
         }
       ]
     });
@@ -154,6 +155,7 @@ export const getProduct = async (req: Request, res: Response) => {
       product
     );
   } catch (error) {
+    console.log(error);
     return handleResponse(
       res,
       HTTP_STATUS.ERROR_STATUS,

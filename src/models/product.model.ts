@@ -92,6 +92,11 @@ class Product extends Model<ProductAttributes, ProductCreationAttributes> {
       foreignKey: 'category',
       as: 'categoryDetail'
     });
+
+    Product.hasMany(models.Review, {
+      foreignKey: 'product_id',
+      as: 'reviewDetails'
+    });
   }
 }
 
