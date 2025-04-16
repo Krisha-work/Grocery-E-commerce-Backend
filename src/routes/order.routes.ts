@@ -16,7 +16,7 @@ const router = Router();
 router.use(authenticate);
 
 // Protected routes
-router.post('/', createOrder);
+router.post('/create', createOrder);
 router.get('/user', getUserOrders);
 router.get('/:id', getOrder);
 router.post('/:id/cancel', cancelOrder);

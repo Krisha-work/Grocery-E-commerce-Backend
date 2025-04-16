@@ -36,6 +36,8 @@ import Order from './order.model';
 import OrderItem from './orderItem.model';
 import Contact from './contact.model';
 import User from './user.model';
+import Cart from './cart.model';
+import CartItem from './cartItem.model';
 
 const models = {
   Product,
@@ -44,7 +46,9 @@ const models = {
   Order,
   OrderItem,
   Contact,
-  User
+  User,
+  Cart,
+  CartItem
 };
 
 // Initialize models

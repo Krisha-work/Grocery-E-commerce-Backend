@@ -95,8 +95,8 @@ export const getProducts = async (req: Request, res: Response) => {
       limit: Number(limit),
       offset: (Number(page) - 1) * Number(limit),
       include: [
-        { model: Category, as: 'categoryDetails' },
-        { model: Review, attributes: ['rating', 'comment'] }
+        { model: Category, as: 'categoryDetail' },
+        { model: Review, as:'reviewDetails', attributes: ['rating', 'comment'] }
       ]
     });
 
@@ -169,6 +169,15 @@ export const createProduct = async (req: Request, res: Response) => {
   console.log('Starting product creation process');
   try {
     const { name, description, price, stock, categoryId } = req.body;
+
+    if(!name || !description || !price || !stock || !categoryId){
+      return handleResponse(
+        res,
+        HTTP_STATUS.ERROR_STATUS,
+        StatusCode.BAD_REQUEST,
+        'Fields is require'
+      );
+    }
     
     if (!req.file) {
       return handleResponse(

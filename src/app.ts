@@ -18,6 +18,7 @@ import userRoutes from './routes/user.routes';
 import orderRoutes from './routes/order.routes';
 import reviewRoutes from './routes/review.routes';
 import categoryRoutes from './routes/category.routes';
+import cartRoutes from './routes/cart.routes'
 
 dotenv.config();
 
@@ -91,7 +92,7 @@ console.log(swaggerFile);
 if (fs.existsSync(swaggerFile)) {
   console.log('Swagger documentation file found');
   const swaggerDocument = require(swaggerFile);
-  app.get('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 } else {
   console.warn('Swagger documentation file not found. API documentation will not be available.');
 }
@@ -104,11 +105,13 @@ app.get("/demo", (req: Request, res: Response) => {
 });
 
 // Routes
-app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/reviews', reviewRoutes);
-app.use('/api/categories', categoryRoutes);
+app.use('/api/cart/', cartRoutes)
+
 
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

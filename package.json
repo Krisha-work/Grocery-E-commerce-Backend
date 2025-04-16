@@ -15,11 +15,12 @@
     "swagger-autogen": "ts-node src/swagger/swagger-autogen.ts"
   },
   "dependencies": {
+    "@types/stripe": "^8.0.416",
     "@types/swagger-ui-express": "^4.1.8",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.1",
+    "dotenv": "^16.5.0",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
     "express-rate-limit": "^7.1.5",
@@ -34,7 +35,7 @@
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6",
-    "stripe": "^14.17.0",
+    "stripe": "^14.25.0",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
   },

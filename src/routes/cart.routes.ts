@@ -5,7 +5,8 @@ import {
   addToCart,
   updateCartItem,
   removeFromCart,
-  clearCart
+  clearCart,
+  paymentProcess
 } from '../controllers/cart.controller';
 
 const router = Router();
@@ -27,5 +28,8 @@ router.delete('/items/:cartItemId', removeFromCart);
 
 // Clear cart
 router.delete('/clear', clearCart);
+
+//payment 
+router.post('/payment', paymentProcess)
 
 export default router; 

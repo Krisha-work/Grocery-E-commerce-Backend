@@ -11,7 +11,8 @@ export const createCategory = async (req: Request, res: Response) => {
     const { name, description } = req.body;
 
     // Validate input
-    const nameValidation = validateName(name, 'Category name');
+    const nameValidation = validateName(name, 'Category name',);
+    console.log(res, "--------");
     if (!nameValidation.isValid) {
       return handleResponse(
         res,
@@ -20,6 +21,15 @@ export const createCategory = async (req: Request, res: Response) => {
         nameValidation.message || 'Invalid category name'
       );
     }
+    if (!description) {
+      return handleResponse(
+        res,
+        HTTP_STATUS.ERROR_STATUS,
+        nameValidation.status || StatusCode.BAD_REQUEST,
+        'Description is require'
+      )
+    }
+
 
     const category = await Category.create({ name, description });
     return handleResponse(
@@ -46,7 +56,7 @@ export const updateCategory = async (req: Request, res: Response) => {
 
     // Validate input if provided
     if (name) {
-      const nameValidation = validateName(name, 'Category name');
+      const nameValidation = validateName(name, 'name');
       if (!nameValidation.isValid) {
         return handleResponse(
           res,
@@ -56,9 +66,19 @@ export const updateCategory = async (req: Request, res: Response) => {
         );
       }
     }
-    
+    if (description) {
+      if (!description) {
+        return handleResponse(
+          res,
+          HTTP_STATUS.ERROR_STATUS,
+          StatusCode.BAD_REQUEST,
+          'Description is require'
+        )
+      }
+    }
+
     const category = await Category.findByPk(id);
-    
+
     if (!category) {
       return handleResponse(
         res,
@@ -90,7 +110,7 @@ export const deleteCategory = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const category = await Category.findByPk(id);
-    
+
     if (!category) {
       return handleResponse(
         res,
@@ -141,9 +161,9 @@ export const getCategoryProducts = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { page = 1, limit = 10, sortBy = 'created_at', order = 'DESC' } = req.query;
-    
+
     const offset = (Number(page) - 1) * Number(limit);
-    
+
     const products = await Product.findAndCountAll({
       where: { category: id },
       limit: Number(limit),
@@ -154,7 +174,7 @@ export const getCategoryProducts = async (req: Request, res: Response) => {
 
 
     return handleResponse(
-      res,  
+      res,
       HTTP_STATUS.SUCCESS_STATUS,
       StatusCode.OK,
       'Category products retrieved successfully',

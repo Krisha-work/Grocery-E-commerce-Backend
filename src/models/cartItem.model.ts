@@ -8,9 +8,10 @@ interface CartItemAttributes {
   product_id: number;
   quantity: number;
   price: number;
+  productDetails?: Product;
 }
 
-interface CartItemCreationAttributes extends Omit<CartItemAttributes, 'id'> {}
+interface CartItemCreationAttributes extends Omit<CartItemAttributes, 'id' | 'productDetails'> {}
 
 class CartItem extends Model<CartItemAttributes, CartItemCreationAttributes> {
   public id!: number;
@@ -20,6 +21,7 @@ class CartItem extends Model<CartItemAttributes, CartItemCreationAttributes> {
   public price!: number;
   public readonly created_at!: Date;
   public readonly updated_at!: Date;
+  public productDetails?: Product;
 
   public static initModel(sequelize: Sequelize): typeof CartItem {
     return this.init(

@@ -31,8 +31,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
-
-    req.user = Object.assign(user, { isAdmin: decoded.isAdmin });
+  
+    req.user = Object.assign(user, { isAdmin: decoded.isAdmin },"66666666666");
     next();
   } catch (error) {
     console.log('Error:', error);

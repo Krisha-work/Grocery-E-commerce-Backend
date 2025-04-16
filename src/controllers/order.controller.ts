@@ -18,6 +18,8 @@ export const createOrder = async (req: Request, res: Response) => {
     const userId = req.user!.id;
 
     if (!shippingAddress) {
+      console.log("-------",res,"--------");
+      
       return handleResponse(
         res,
         HTTP_STATUS.ERROR_STATUS,
@@ -105,8 +107,8 @@ export const getOrder = async (req: Request, res: Response) => {
       where: { id, user_id: userId },
       include: [{
         model: OrderItem,
-        as: 'OrderItems',
-        include: [Product],
+        as: 'orderDetails',
+        include: [{model: Product, as: 'productDetails'}],
       }],
     });
 
@@ -126,13 +128,13 @@ export const getOrder = async (req: Request, res: Response) => {
       'Order retrieved successfully',
       order
     );
-  } catch (error) {
+  } catch (error :any) {
     console.log(error);
     return handleResponse(
       res,
       HTTP_STATUS.ERROR_STATUS,
       StatusCode.INTERNAL_SERVER_ERROR,
-      'Error fetching order'
+      error.message ||'Error fetching order'
     );
   }
 };
@@ -151,8 +153,8 @@ export const getUserOrders = async (req: Request, res: Response) => {
       order: [['created_at', 'DESC']],
       include: [{
         model: OrderItem,
-        as: 'OrderItems',
-        include: [Product],
+        as: 'orderDetails',
+        include: [{model: Product, as: 'productDetails'}],
       }],
     });
 
@@ -162,8 +164,15 @@ export const getUserOrders = async (req: Request, res: Response) => {
       totalPages: Math.ceil(orders.count / Number(limit)),
       currentPage: Number(page),
     });
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching user orders' });
+  } catch (error: any) {
+    console.log(error);
+    
+    return handleResponse(
+      res,
+      HTTP_STATUS.ERROR_STATUS,
+      StatusCode.INTERNAL_SERVER_ERROR,
+      error.message || 'Error fetching user orders'
+    );
   }
 };
 
@@ -185,8 +194,8 @@ export const getAllOrders = async (req: Request, res: Response) => {
       order: [['created_at', 'DESC']],
       include: [{
         model: OrderItem,
-        as: 'OrderItems',
-        include: [Product],
+        as: 'orderDetails',
+        include: [{model :Product, as:'productDetails'}],
       }],
     });
 
@@ -205,12 +214,12 @@ export const getAllOrders = async (req: Request, res: Response) => {
       orders.rows,
       pagination
     );
-  } catch (error) {
+  } catch (error: any) {
     return handleResponse(
       res,
       HTTP_STATUS.ERROR_STATUS,
       StatusCode.INTERNAL_SERVER_ERROR,
-      'Error fetching orders'
+      error.message || 'Error fetching orders'
     );
   }
 };
@@ -230,7 +239,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     }
 
     const order = await Order.findByPk(id, {
-      include: [{ model: OrderItem, as: 'OrderItems', include: [Product] }]
+      include: [{ model: OrderItem, as: 'orderDetails', include: [{model: Product, as: 'productDetails'}] }]
     });
 
     if (!order) {
@@ -255,12 +264,12 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
       'Order status updated successfully',
       order
     );
-  } catch (error) {
+  } catch (error: any) {
     return handleResponse(
       res,
       HTTP_STATUS.ERROR_STATUS,
       StatusCode.INTERNAL_SERVER_ERROR,
-      'Error updating order status'
+      error.message || 'Error updating order status'
     );
   }
 };
@@ -270,7 +279,7 @@ export const cancelOrder = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     const order = await Order.findByPk(id, {
-      include: [{ model: OrderItem, as: 'OrderItems', include: [Product] }]
+      include: [{ model: OrderItem, as: 'orderDetails', include: [{model: Product, as: 'productDetails'}] }]
     });
 
     if (!order) {
@@ -322,7 +331,7 @@ export const processPayment = async (req: Request, res: Response) => {
     const { orderId } = req.body;
 
     const order = await Order.findByPk(orderId, {
-      include: [{ model: OrderItem, as: 'OrderItems', include: [Product] }]
+      include: [{ model: OrderItem, as: 'orderDetails', include: [{model: Product, as: 'productDetails'}] }]
     });
 
     if (!order) {
@@ -339,9 +348,14 @@ export const processPayment = async (req: Request, res: Response) => {
 
     await order.update({ payment_status: 'pending' as PaymentStatus });
     res.json({ clientSecret: paymentIntent.client_secret });
-  } catch (error) {
+  } catch (error : any) {
     console.error('Process payment error:', error);
-    res.status(500).json({ message: 'Error processing payment' });
+    return handleResponse(
+      res,
+      HTTP_STATUS.ERROR_STATUS,
+      StatusCode.INTERNAL_SERVER_ERROR,
+      error.message || 'Error processing payment'
+    );
   }
 };
 

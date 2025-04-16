@@ -40,8 +40,8 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const validations = [
-      validateEmail(email),
       validateUsername(username),
+      validateEmail(email),
       validatePassword(password)
     ];
     for (const v of validations) if (!v.isValid) return sendValidationError(res, v);
@@ -118,6 +118,15 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { usernameOrEmail, password, rememberMe } = req.body;
     console.log('Login attempt for:', usernameOrEmail);
+
+    if (!usernameOrEmail|| !password) {
+      return handleResponse(
+        res,
+        HTTP_STATUS.ERROR_STATUS,
+        StatusCode.BAD_REQUEST,
+        'All fields are required'
+      );
+    }
     
     const user = await db.User.findOne({ where: { [Op.or]: [{ username: usernameOrEmail }, { email: usernameOrEmail }] } });
     if (!user) {
@@ -130,8 +139,6 @@ export const login = async (req: Request, res: Response) => {
       username: user.username,
       email: user.email,
       is_verified: user.is_verified
-
-
     });
 
     const isPasswordValid = await user.comparePassword(password);
@@ -157,13 +164,10 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = (req: Request, res: Response) => {
-  res.clearCookie('token');
-  return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'Logout successful');
-};
-
 export const getProfile = async (req: Request, res: Response) => {
   const user = req.user!;
+  console.log(user.dataValues.id,"------");
+
   return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'Profile fetched successfully', {
     id: user.id, username: user.username, email: user.email
   });
@@ -183,7 +187,9 @@ export const updateProfile = async (req: Request, res: Response) => {
     req.session.newProfileData = { username, email };
 
     return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'OTP sent to your email');
-  } catch {
+  } catch(error) {
+    console.log(error);
+    
     return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.INTERNAL_SERVER_ERROR, 'Profile update failed');
   }
 };
@@ -192,7 +198,8 @@ export const verifyProfileUpdate = async (req: Request, res: Response) => {
   try {
     const { otp } = req.body;
     const user = req.user!;
-    if (otp !== req.session.otp) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Invalid OTP');
+    if (!otp) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'OTP is require');
+    else if (otp !== req.session.otp ) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Invalid OTP');
 
     const { username, email } = req.session.newProfileData!;
     await user.update({ username, email });
@@ -214,7 +221,8 @@ export const resetPassword = async (req: Request, res: Response) => {
     const passwordValidation = validatePassword(newPassword);
     if (!passwordValidation.isValid) return sendValidationError(res, passwordValidation);
     if (!(await user.comparePassword(oldPassword))) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Incorrect old password');
-    if (newPassword !== confirmPassword) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Passwords do not match');
+    if (newPassword == oldPassword) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'New Password shoude not be equal to old password');
+    if (newPassword !== confirmPassword) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Confirm Passwords do not match');
 
     await user.update({ password: newPassword });
     return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'Password updated');
@@ -243,17 +251,9 @@ export const forgotPassword = async (req: Request, res: Response) => {
   }
 };
 
-export const verifyEmail = async (req: Request, res: Response) => {
-  try {
-    const { token } = req.params;
-    const user = await db.User.findOne({ where: { verification_token: token } });
-    console.log('User:', user);
-    if (!user) return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.BAD_REQUEST, 'Invalid token');
-
-    await user.update({ is_verified: true, verification_token: null });
-    return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'Email verified');
-  } catch (error) {
-    console.error('Email verification error:', error);
-    return handleResponse(res, HTTP_STATUS.ERROR_STATUS, StatusCode.INTERNAL_SERVER_ERROR, 'Email verification failed');
-  }
-}; 
+export const logout = (req: Request, res: Response) => {
+  console.log(res,"------------");
+  
+  res.clearCookie('token');
+  return handleResponse(res, HTTP_STATUS.SUCCESS_STATUS, StatusCode.OK, 'Logout successful');
+};
