@@ -1,54 +1,45 @@
 import swaggerAutogen from 'swagger-autogen';
 import path from 'path';
-import fs from 'fs';
-
-const outputFile = path.join(__dirname, '../src/swagger/swagger.json');
-const endpointsFiles = [path.join(__dirname, '../routes/*.ts')];
 
 const doc = {
   info: {
-    title: 'E-commerce API Documentation',
-    description: 'API documentation for the E-commerce platform',
+    title: 'E-Commerce API',
+    description: 'Documentation for the E-Commerce Backend API',
     version: '1.0.0',
-    contact: {
-      name: 'API Support',
-      email: 'support@example.com',
-    },
   },
-  host: `${process.env.HOST || 'localhost'}:${process.env.PORT || 6001}`,
+  host: process.env.NODE_ENV === 'production' 
+    ? 'your-production-url' 
+    : 'localhost:5000',
   basePath: '/',
   schemes: ['http', 'https'],
   securityDefinitions: {
     bearerAuth: {
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
+      type: 'apiKey',
+      name: 'Authorization',
+      in: 'header',
     },
   },
-  security: [
-    {
-      bearerAuth: [],
-    },
-  ],
   definitions: {
-    // Add your common response/request schemas here
+    User: {
+      id: 1,
+      username: 'string',
+      email: 'string',
+      is_verified: true,
+      is_admin: false,
+    },
+    Product: {
+      id: 1,
+      name: 'string',
+      description: 'string',
+      price: 0,
+      stock: 0,
+    },
   },
 };
 
-// Generate swagger.json
-export const generateSwagger = () => {
-  try {
-    // Ensure the directory exists
-    const outputDir = path.dirname(outputFile);
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
+const outputFile = path.join(__dirname, 'swagger.json');
+const endpointsFiles = [path.join(__dirname, '../routes/*.ts')];
 
-    // Generate the swagger.json file
-    swaggerAutogen()(outputFile, endpointsFiles, doc);
-    console.log('Swagger documentation generated successfully');
-  } catch (error) {
-    console.error('Error generating Swagger documentation:', error);
-    throw error;
-  }
-}; 
+swaggerAutogen()(outputFile, endpointsFiles, doc).then(() => {
+  console.log('Swagger documentation generated successfully');
+}); 

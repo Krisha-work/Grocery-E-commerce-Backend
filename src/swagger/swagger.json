@@ -1,15 +1,11 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "E-commerce API Documentation",
-    "description": "API documentation for the E-commerce platform",
-    "version": "1.0.0",
-    "contact": {
-      "name": "API Support",
-      "email": "support@example.com"
-    }
+    "title": "E-Commerce API",
+    "description": "Documentation for the E-Commerce Backend API",
+    "version": "1.0.0"
   },
-  "host": "localhost:6001",
+  "host": "localhost:5000",
   "basePath": "/",
   "schemes": [
     "http",
@@ -17,9 +13,9 @@
   ],
   "securityDefinitions": {
     "bearerAuth": {
-      "type": "http",
-      "scheme": "bearer",
-      "bearerFormat": "JWT"
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
     }
   },
   "paths": {
@@ -229,6 +225,41 @@
         }
       }
     },
+    "/payment": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "orderId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
     "/{id}/products": {
       "get": {
         "description": "",
@@ -313,9 +344,6 @@
           },
           "500": {
             "description": "Internal Server Error"
-          },
-          "default": {
-            "description": ""
           }
         }
       },
@@ -416,6 +444,38 @@
         }
       }
     },
+    "/create": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "example": "any"
+                },
+                "shippingAddress": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
     "/user": {
       "get": {
         "description": "",
@@ -468,44 +528,6 @@
         "responses": {
           "401": {
             "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/payment": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "orderId": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
           }
         }
       }
@@ -627,24 +649,6 @@
                 }
               }
             }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/verify-email/{token}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "token",
-            "in": "path",
-            "required": true,
-            "type": "string"
           }
         ],
         "responses": {
@@ -807,9 +811,56 @@
       }
     }
   },
-  "security": [
-    {
-      "bearerAuth": []
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "username": {
+          "type": "string",
+          "example": "string"
+        },
+        "email": {
+          "type": "string",
+          "example": "string"
+        },
+        "is_verified": {
+          "type": "boolean",
+          "example": true
+        },
+        "is_admin": {
+          "type": "boolean",
+          "example": false
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "example": "string"
+        },
+        "description": {
+          "type": "string",
+          "example": "string"
+        },
+        "price": {
+          "type": "number",
+          "example": 0
+        },
+        "stock": {
+          "type": "number",
+          "example": 0
+        }
+      }
     }
-  ]
+  }
 }

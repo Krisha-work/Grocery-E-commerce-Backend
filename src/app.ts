@@ -8,7 +8,7 @@ import session from 'express-session';
 import swaggerUi from 'swagger-ui-express';
 import path from 'path';
 import fs from 'fs';
-import { generateSwagger } from './swagger/swagger-autogen';
+import  generateSwagger  from 'swagger-autogen';
 import { securityMiddleware } from './middleware/security';
 import { authLimiter, apiLimiter } from './middleware/rateLimiter';
 
@@ -87,7 +87,7 @@ try {
 }
 
 // Swagger UI setup
-const swaggerFile = path.join(__dirname, '../swagger/swagger.json');
+const swaggerFile = path.join(__dirname, './swagger/swagger.json');
 console.log(swaggerFile);
 if (fs.existsSync(swaggerFile)) {
   console.log('Swagger documentation file found');
